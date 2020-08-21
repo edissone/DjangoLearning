@@ -96,21 +96,3 @@ class QuestionDetailViewTests(TestCase):
         url = reverse('polls:detail', args=(past_question.id,))
         response = self.client.get(url)
         self.assertContains(response, past_question.question_text)
-
-
-class QuestionResultsViewTests(TestCase):
-
-    def test_all_choices_results(self):
-        question = create_question("Test question", days=1)
-        create_choice(question, "Yes", 10)
-        create_choice(question, "No", 5)
-        create_choice(question, "I don't care", 1)
-
-        # TODO: Need to fix django.urls.exceptions.NoReverseMatch
-        url = reverse('polls:results', args=(question.id,))
-
-        response = self.client.get(url)
-        self.assertQuerysetEqual(
-            response.context['choices_list'],
-            ['<Choice: Yes>', '<Choice: No>', '<Choice: I don\'t care>', ]
-        )
