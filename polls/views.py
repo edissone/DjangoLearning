@@ -35,6 +35,11 @@ class ResultsView(generic.DetailView):
         return Choice.objects.order_by('votes')
 
 
+class PostPollView(generic.DetailView):
+    model = Question
+    template_name = 'polls/post_poll.html'
+
+
 def vote(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
     try:
