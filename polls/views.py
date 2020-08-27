@@ -3,8 +3,10 @@ from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from django.views import generic
 from django.utils import timezone
+from django.contrib.auth.models import User
 
 from .models import Question, Choice
+
 
 # Create your views here.
 
@@ -34,11 +36,12 @@ class ResultsView(generic.DetailView):
     def get_queryset(self):
         return Choice.objects.order_by('votes')
 
+# TODO: Create a post question view <?>
 
-class PostPollView(generic.DetailView):
-    model = Question
-    template_name = 'polls/post_poll.html'
-
+def post_question(request):
+    question = request.POST['question']
+    question.save()
+    return HttpResponseRedirect(reverse('polls:detail', args=(question.id,)))
 
 def vote(request, question_id):
     question = get_object_or_404(Question, pk=question_id)

@@ -60,7 +60,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['polls/templates/','config/templates/',],
+        'DIRS': ['templates/',],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -80,7 +80,7 @@ AUTHENTICATION_BACKENDS = [
 # tmp
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 
-LOGIN_REDIRECT_URL ='/polls'
+LOGIN_REDIRECT_URL ='/'
 
 WSGI_APPLICATION = 'config.wsgi.application'
 

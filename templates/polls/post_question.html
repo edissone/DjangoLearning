@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+    <form class="post-question" method="POST" action="{% url 'polls:post_question' %}">
+        {% csrf_token %}
+        <a>Text of your question:</a>>
+        <input type="text" name="question.question_text">
+
+    </form>
+{% endblock %}
