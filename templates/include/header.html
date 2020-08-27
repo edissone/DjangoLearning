@@ -2,8 +2,8 @@
     <nav class="m-3">
         <ul>
             <li><a href="">Home</a></li>
-            <li><a href="{% url 'polls:post_question'%}">Post question</a></li>
             {% if user.is_authenticated %}
+                 <li><a href="{% url 'polls:question_new' %}" class="top-menu">New Poll</a></li>
                 <li><a href="{% url "account_logout" %}">Log Out</a></li>
             {% else %}
                 <li><a href="{% url "account_login" %}">Log In</a></li>
