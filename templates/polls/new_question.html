@@ -3,6 +3,7 @@
     <form class="question-new" method="POST">
         {% csrf_token %}
         {{ form.as_table }}
-        <button type="submit" class="save btn btn-default">Save</button>
+
+        <button type="submit" class="save btn btn-default">Add Choices</button>
     </form>
 {% endblock %}

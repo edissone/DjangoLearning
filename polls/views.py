@@ -40,41 +40,30 @@ class ResultsView(generic.DetailView):
 def question_new(request):
     form = NewQuestionForm(request.POST)
     if request.method == 'POST':
-        #TODO: FUCKED UP HERE
         if form.is_valid():
             question = form.save(commit=False)
             question.author = request.user
             question.publish_date = timezone.now()
             question.save()
-            return HttpResponseRedirect(reverse('polls:detail', args=(question.id,)))
+            return HttpResponseRedirect(reverse('polls:add_choices', args=(question.id,)))
     else:
         form = NewQuestionForm(request.POST)
 
     context = {'form': form}
     return render(request, 'polls/new_question.html', context=context)
 
-
-'''def question_new(request):
+def add_choices(request, question_id):
+    ChoiceFormSet = inlineformset_factory(Question, Choice, fields=('choice_text',), extra=5)
+    question = get_object_or_404(Question, pk=question_id)
+    formset = ChoiceFormSet(instance=question)
     if request.method == 'POST':
-        form = NewQuestionForm(request.POST)
-        form_choice = ChoiceForm(request.POST)
-        if form.is_valid() and form_choice.is_valid():
-            question = form.save(commit=False)
-            question.author = request.user
-            question.publish_date = timezone.now()
-            question.save()
+        formset = ChoiceFormSet(request.POST, instance=question)
+        if formset.is_valid():
+            formset.save()
+            return HttpResponseRedirect(reverse('polls:detail', args=(question_id,)))
 
-            choice = form_choice.save(commit=False)
-            choice.question = question
-            choice.votes = 0
-            choice.save()
-
-            return HttpResponseRedirect(reverse('polls:detail', args=(question.id,)))
-    else:
-        form = NewQuestionForm()
-        form_choice = ChoiceForm()
-    return render(request, 'polls/new_question.html', {'form': form, 'form_choice': form_choice})
-'''
+    context = {'formset':formset}
+    return render(request, 'polls/add_choices.html' ,context=context)
 
 def vote(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
