@@ -3,16 +3,6 @@
     <form class="question-new" method="POST">
         {% csrf_token %}
         {{ form.as_table }}
-        <div class="ml-3 mt-2">
-            <form class="choice-new" method="POST">
-                {% csrf_token %}
-                {{ formset.managment_form }}
-                {% for form_choice in formset %}
-                    {{ form_choice.as_p }}
-                {% endfor %}
-                <button type="submit" class="save btn btn-default">Save</button>
-            </form>
-        </div>
-
+        <button type="submit" class="save btn btn-default">Save</button>
     </form>
 {% endblock %}

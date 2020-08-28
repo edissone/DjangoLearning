@@ -13,4 +13,3 @@ class ChoiceForm(forms.ModelForm):
         model = Choice
         fields = ('choice_text',)
 
-ChoiceFormSet = formset_factory(ChoiceForm, extra=2)

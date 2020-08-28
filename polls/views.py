@@ -1,11 +1,10 @@
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
-from django.utils.datastructures import MultiValueDictKeyError
 from django.views import generic
 from django.utils import timezone
-
-from .forms import NewQuestionForm, ChoiceForm, ChoiceFormSet
+from django.forms import inlineformset_factory
+from .forms import NewQuestionForm, ChoiceForm
 from .models import Question, Choice
 
 
@@ -39,25 +38,20 @@ class ResultsView(generic.DetailView):
 
 
 def question_new(request):
+    form = NewQuestionForm(request.POST)
     if request.method == 'POST':
-        form = NewQuestionForm(request.POST)
-        formset = ChoiceFormSet(request.POST)
         #TODO: FUCKED UP HERE
-        if formset.is_valid() and form.is_valid():
+        if form.is_valid():
             question = form.save(commit=False)
             question.author = request.user
             question.publish_date = timezone.now()
             question.save()
-            for form_choice in formset:
-                choice = form_choice.save(commit=False)
-                choice.question = question
-                choice.votes = 0
-                choice.save()
             return HttpResponseRedirect(reverse('polls:detail', args=(question.id,)))
     else:
         form = NewQuestionForm(request.POST)
-        formset = ChoiceFormSet
-    return render(request, 'polls/new_question.html', {'form': form,'formset': formset})
+
+    context = {'form': form}
+    return render(request, 'polls/new_question.html', context=context)
 
 
 '''def question_new(request):
