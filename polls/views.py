@@ -37,14 +37,6 @@ class ResultsView(generic.DetailView):
         return Choice.objects.order_by('votes')
 
 
-class UserProfileView(generic.DetailView):
-    template_name = 'profile/user_profile.html'
-    context_object_name = 'user_questions'
-
-    def get_queryset(self):
-        return Question.objects.filter(author=self.request.user)
-
-
 def question_new(request):
     form = NewQuestionForm(request.POST)
     if request.method == 'POST':
