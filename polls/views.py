@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.views import generic
 from django.utils import timezone
 from django.forms import inlineformset_factory
-from .forms import NewQuestionForm, ChoiceForm
+from .forms import NewQuestionForm
 from .models import Question, Choice
 
 
@@ -35,6 +35,14 @@ class ResultsView(generic.DetailView):
 
     def get_queryset(self):
         return Choice.objects.order_by('votes')
+
+
+class UserProfileView(generic.DetailView):
+    template_name = 'profile/user_profile.html'
+    context_object_name = 'user_questions'
+
+    def get_queryset(self):
+        return Question.objects.filter(author=self.request.user)
 
 
 def question_new(request):
