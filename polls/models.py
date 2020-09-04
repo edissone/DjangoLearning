@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 class Question(models.Model):
     question_text = models.CharField(max_length=155)
     publish_date = models.DateTimeField('date published')
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    author = models.ForeignKey(User, on_delete=models.CASCADE,related_name='questions')
 
     def __str__(self):
         return self.question_text

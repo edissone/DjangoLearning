@@ -1,11 +1,13 @@
 from django.views import generic
 
-from polls.models import Question
-
 
 class UserProfileView(generic.DetailView):
     template_name = 'users/user_profile.html'
-    context_object_name = 'user_questions'
 
-    def get_queryset(self):
-        return Question.objects.filter(author=self.request.user)
+    def get_object(self, queryset=None):
+        return self.request.user
+
+    def get_context_data(self, **kwargs):
+        context = super(UserProfileView, self).get_context_data(**kwargs)
+        context['questions'] = self.request.user.questions.all()
+        return context

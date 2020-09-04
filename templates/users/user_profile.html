@@ -1,9 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
     {{ user.username }}
-    {% if user_questions %}
-        {% for question in user_questions %}
+        {% for question in questions %}
             <li class="mt-2"><a href="{% url 'polls:detail' question.id %}">{{ question.question_text }}</a></li>
         {% endfor %}
-    {% endif %}
 {% endblock content %}
