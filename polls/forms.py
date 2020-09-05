@@ -1,14 +1,9 @@
-from django import forms
+from extra_views import InlineFormSetFactory
 
-from .models import Question, Choice
+from polls.models import Choice
 
-class NewQuestionForm(forms.ModelForm):
-    class Meta:
-        model = Question
-        fields = ('question_text',)
 
-class ChoiceForm(forms.ModelForm):
-    class Meta:
-        model = Choice
-        fields = ('choice_text',)
-
+class ChoiceInline(InlineFormSetFactory):
+    model = Choice
+    fields = ['choice_text']
+    factory_kwargs = {"extra": 5, "can_delete": False}

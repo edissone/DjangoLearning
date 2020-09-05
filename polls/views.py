@@ -3,9 +3,10 @@ from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from django.views import generic
 from django.utils import timezone
-from django.forms import inlineformset_factory
-from .forms import NewQuestionForm
-from .models import Question, Choice
+from extra_views import CreateWithInlinesView
+from polls.forms import ChoiceInline
+from polls.models import Question, Choice
+from django.contrib.auth.models import User
 
 
 # Create your views here.
@@ -13,11 +14,10 @@ from .models import Question, Choice
 class IndexView(generic.ListView):
     template_name = 'polls/index.html'
     context_object_name = 'latest_question_list'
+    paginate_by = 2
 
     def get_queryset(self):
-        return Question.objects.filter(
-            publish_date__lte=timezone.now()
-        ).order_by('-publish_date')[:5]
+        return Question.objects.get_queryset().order_by('id')
 
 
 class DetailView(generic.DetailView):
@@ -37,33 +37,21 @@ class ResultsView(generic.DetailView):
         return Choice.objects.order_by('votes')
 
 
-def question_new(request):
-    form = NewQuestionForm(request.POST)
-    if request.method == 'POST':
-        if form.is_valid():
-            question = form.save(commit=False)
-            question.author = request.user
-            question.publish_date = timezone.now()
-            question.save()
-            return HttpResponseRedirect(reverse('polls:add_choices', args=(question.id,)))
-    else:
-        form = NewQuestionForm(request.POST)
+class CreateQuestionFormView(CreateWithInlinesView):
+    model = Question
+    inlines = [ChoiceInline]
+    fields = ['question_text']
+    template_name = 'polls/create_question.html'
 
-    context = {'form': form}
-    return render(request, 'polls/new_question.html', context=context)
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        form.instance.publish_date = timezone.now()
+        form.instance.save()
+        return HttpResponseRedirect(reverse('polls:detail', args=(form.instance.id,)))
 
-def add_choices(request, question_id):
-    ChoiceFormSet = inlineformset_factory(Question, Choice, fields=('choice_text',), extra=5)
-    question = get_object_or_404(Question, pk=question_id)
-    formset = ChoiceFormSet(instance=question)
-    if request.method == 'POST':
-        formset = ChoiceFormSet(request.POST, instance=question)
-        if formset.is_valid():
-            formset.save()
-            return HttpResponseRedirect(reverse('polls:detail', args=(question_id,)))
+    def get_success_url(self):
+        return self.object.get_absolute_url()
 
-    context = {'formset':formset}
-    return render(request, 'polls/add_choices.html' ,context=context)
 
 def vote(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
@@ -81,4 +69,4 @@ def vote(request, question_id):
         # Always return an HttpResponseRedirect after successfully dealing
         # with POST data. This prevents data from being posted twice if a
         # user hits the Back button.
-        return HttpResponseRedirect(reverse('polls:detail', args=(question.id,)))
+        return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))

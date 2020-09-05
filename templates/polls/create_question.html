@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <form class="create-question" method="POST">
+        {% csrf_token %}
+        <div class="mt-5 mb-7">
+            {{ form|crispy }}
+            <br>
+        </div>
+        {% for formset in inlines %}
+            <div class="ml-5">
+                {{ formset|crispy }}
+            </div>
+        {% endfor %}
+        <button type="submit" class="save btn btn-default">Add question</button>
+    </form>
+{% endblock %}
