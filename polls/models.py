@@ -1,12 +1,24 @@
 import datetime
+
+from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
-from django.contrib.auth.models import User
+
+
 # Create your models here.
+
 class Question(models.Model):
+    CHOICES_TYPE = [
+        ('t', 'Text field'),
+        ('c', 'Multiple'),
+        ('r', 'Single')
+    ]
+
     question_text = models.CharField(max_length=155)
+    choices_type = models.CharField(max_length=2, choices=CHOICES_TYPE, default='r')
+    image = models.ImageField(upload_to='polls',default=None, blank=True, null=True)
     publish_date = models.DateTimeField('date published')
-    author = models.ForeignKey(User, on_delete=models.CASCADE,related_name='questions')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='questions')
 
     def __str__(self):
         return self.question_text

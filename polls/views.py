@@ -1,5 +1,4 @@
 from django.http import HttpResponseRedirect
-from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
 from django.views import generic
@@ -40,8 +39,8 @@ class ResultsView(generic.DetailView):
 class CreateQuestionFormView(CreateWithInlinesView):
     model = Question
     inlines = [ChoiceInline]
-    fields = ['question_text']
     template_name = 'polls/create_question.html'
+    fields = ['question_text', 'image', 'choices_type']
 
     def form_valid(self, form):
         form.instance.author = self.request.user
@@ -53,7 +52,7 @@ class CreateQuestionFormView(CreateWithInlinesView):
         return self.object.get_absolute_url()
 
 
-class ChoiceVoteView(generic.DetailView):
+class ChoiceVoteView(generic.FormView):
     error_msg = ""
     model = Question
     template_name = 'poll/detail.html'
