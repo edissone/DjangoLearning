@@ -1,12 +1,12 @@
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
-from django.views import generic
 from django.utils import timezone
+from django.views import generic
 from extra_views import CreateWithInlinesView
+
 from polls.forms import ChoiceInline
 from polls.models import Question, Choice
-from django.contrib.auth.models import User
 
 
 # Create your views here.
@@ -53,20 +53,23 @@ class CreateQuestionFormView(CreateWithInlinesView):
         return self.object.get_absolute_url()
 
 
-def vote(request, question_id):
-    question = get_object_or_404(Question, pk=question_id)
-    try:
-        selected_choice = question.choice_set.get(pk=request.POST['choice'])
-    except (KeyError, Choice.DoesNotExist):
-        # Redisplay the question voting form.
-        return render(request, 'polls/detail.html', {
-            'question': question,
-            'error_message': "You didn't select a choice.",
-        })
-    else:
-        selected_choice.votes += 1
-        selected_choice.save()
-        # Always return an HttpResponseRedirect after successfully dealing
-        # with POST data. This prevents data from being posted twice if a
-        # user hits the Back button.
-        return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))
+class ChoiceVoteView(generic.DetailView):
+    error_msg = ""
+    model = Question
+    template_name = 'poll/detail.html'
+    context_object_name = 'question'
+
+    def get_object(self):
+        return self.request.question
+
+    def get_context_data(self, **kwargs):
+        context = super(ChoiceVoteView, self).get_context_data(**kwargs)
+        context['error_message'] = self.error_msg
+
+    def get_choices(self):
+        return self.object.choice_set.get(pk=self.request.POST['choice'])
+
+    def form_valid(self, form):
+        form.instance.votes += 1
+        form.instance.save()
+        return HttpResponseRedirect(reverse('polls:results', args=(self.object.id,)))
