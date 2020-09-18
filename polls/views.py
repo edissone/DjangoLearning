@@ -4,7 +4,7 @@ from django.utils import timezone
 from django.views import generic
 from extra_views import CreateWithInlinesView
 
-from polls.forms import ChoiceInline
+from polls.forms import ChoiceInline, VoteForm
 from polls.models import Question, Choice
 
 
@@ -53,22 +53,15 @@ class CreateQuestionFormView(CreateWithInlinesView):
 
 
 class ChoiceVoteView(generic.FormView):
-    error_msg = ""
-    model = Question
+    model = Choice
     template_name = 'poll/detail.html'
-    context_object_name = 'question'
+    context_object_name = 'choice'
+    form_class = VoteForm
 
     def get_object(self):
-        return self.request.question
-
-    def get_context_data(self, **kwargs):
-        context = super(ChoiceVoteView, self).get_context_data(**kwargs)
-        context['error_message'] = self.error_msg
-
-    def get_choices(self):
-        return self.object.choice_set.get(pk=self.request.POST['choice'])
+        return Choice.question.choice_set.get(pk=self.request.POST['choice'])
 
     def form_valid(self, form):
         form.instance.votes += 1
         form.instance.save()
-        return HttpResponseRedirect(reverse('polls:results', args=(self.object.id,)))
+        return HttpResponseRedirect(reverse('polls:results'))

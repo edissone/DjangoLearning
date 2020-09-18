@@ -16,7 +16,7 @@ class Question(models.Model):
 
     question_text = models.CharField(max_length=155)
     choices_type = models.CharField(max_length=2, choices=CHOICES_TYPE, default='r')
-    image = models.ImageField(upload_to='polls',default=None, blank=True, null=True)
+    image = models.ImageField(upload_to='polls/', blank=True)
     publish_date = models.DateTimeField('date published')
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='questions')
 
