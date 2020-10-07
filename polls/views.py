@@ -30,10 +30,6 @@ class DetailView(generic.DetailView):
 class ResultsView(generic.DetailView):
     model = Question
     template_name = 'polls/results.html'
-    context_object_name = 'choices_list'
-
-    def get_queryset(self):
-        return Choice.objects.order_by('votes')
 
 
 class CreateQuestionFormView(CreateWithInlinesView):
@@ -53,15 +49,16 @@ class CreateQuestionFormView(CreateWithInlinesView):
 
 
 class ChoiceVoteView(generic.FormView):
-    model = Choice
-    template_name = 'poll/detail.html'
-    context_object_name = 'choice'
+    template_name = 'polls/vote.html'
     form_class = VoteForm
 
-    def get_object(self):
-        return Choice.question.choice_set.get(pk=self.request.POST['choice'])
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs().copy()
+        kwargs.update({"question_id": self.kwargs['question_id']})
+        return kwargs
 
     def form_valid(self, form):
-        form.instance.votes += 1
-        form.instance.save()
-        return HttpResponseRedirect(reverse('polls:results'))
+        for choice in form.cleaned_data['choice']:
+            choice.votes += 1
+            choice.save()
+        return HttpResponseRedirect(reverse('polls:results', args=(self.get_form_kwargs()['question_id'],)))

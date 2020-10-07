@@ -1,19 +1,19 @@
 from django import forms
 from extra_views import InlineFormSetFactory
 
-from polls.models import Choice
+from polls.models import Question, Choice
 
 
-# TODO: realize dynamic form for voting
-class VoteForm(forms.ModelForm):
-    model = Choice
+class VoteForm(forms.Form):
 
-    def __init__(self, initial=None, prefix=None):
-        choice_set = Choice.objects.filter()
-        choices = []
-        for i in choice_set:
-            choices.append((f'{i.id}', f'{i.choice_text}'))
-        self.choice = forms.IntegerField(widget=forms.widgets.RadioSelect, choices=choices)
+    def __init__(self, *args, **kwargs):
+        q_id = kwargs.pop('question_id')
+        super(VoteForm, self).__init__(*args, **kwargs)
+        self.fields['choice'] = forms.ModelMultipleChoiceField(Question.objects.get(pk=q_id).choice_set,
+                                                               widget=forms.CheckboxSelectMultiple)
+
+    class Meta:
+        fields = ['choice', ]
 
 
 class ChoiceInline(InlineFormSetFactory):
