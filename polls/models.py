@@ -13,10 +13,10 @@ class Question(models.Model):
         ('c', 'Multiple'),
         ('r', 'Single')
     ]
-
-    question_text = models.CharField(max_length=155)
-    choices_type = models.CharField(max_length=2, choices=CHOICES_TYPE, default='r')
-    image = models.ImageField(upload_to='polls/', blank=True)
+    question_text = models.CharField(max_length=30)
+    description = models.CharField(max_length=150, blank=True)
+    image = models.ImageField(upload_to='polls/', blank=True, null=True)
+    choice_type = models.CharField(max_length=2, choices=CHOICES_TYPE, default='r')
     publish_date = models.DateTimeField('date published')
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='questions')
 
@@ -35,7 +35,8 @@ class Question(models.Model):
 class Choice(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     choice_text = models.CharField(max_length=50)
-    votes = models.IntegerField(default=0)
+    votes = models.ManyToManyField(User, related_name="votes", default=None, blank=True)
 
     def __str__(self):
         return self.choice_text
+

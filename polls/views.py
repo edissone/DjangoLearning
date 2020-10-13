@@ -1,7 +1,9 @@
+from django import forms
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils import timezone
 from django.views import generic
+from django_bulk_update.helper import bulk_update
 from extra_views import CreateWithInlinesView
 
 from polls.forms import ChoiceInline, VoteForm
@@ -13,7 +15,7 @@ from polls.models import Question, Choice
 class IndexView(generic.ListView):
     template_name = 'polls/index.html'
     context_object_name = 'latest_question_list'
-    paginate_by = 2
+    paginate_by = 10
 
     def get_queryset(self):
         return Question.objects.get_queryset().order_by('id')
@@ -36,7 +38,10 @@ class CreateQuestionFormView(CreateWithInlinesView):
     model = Question
     inlines = [ChoiceInline]
     template_name = 'polls/create_question.html'
-    fields = ['question_text', 'image', 'choices_type']
+    fields = ['question_text', 'description', 'image', 'choice_type']
+    widgets = {
+        'description': forms.Textarea(attrs={'rows': 5, 'cols': 10}),
+    }
 
     def form_valid(self, form):
         form.instance.author = self.request.user
@@ -58,7 +63,18 @@ class ChoiceVoteView(generic.FormView):
         return kwargs
 
     def form_valid(self, form):
-        for choice in form.cleaned_data['choice']:
-            choice.votes += 1
+        choices_list = []
+        if isinstance(form.cleaned_data['choice'], Choice):
+            choice = form.cleaned_data['choice']
+            choice.votes.add(self.request.user)
+            choices_list.append(choice)
+        elif isinstance(form.cleaned_data['choice'], str):
+            choice = Choice(question_id=self.kwargs['question_id'], choice_text=form.cleaned_data['choice'])
             choice.save()
+            choice.votes.add(self.request.user)
+        else:
+            for choice in form.cleaned_data['choice']:
+                choice.votes.add(self.request.user)
+                choices_list.append(choice)
+        bulk_update(choices_list)
         return HttpResponseRedirect(reverse('polls:results', args=(self.get_form_kwargs()['question_id'],)))
