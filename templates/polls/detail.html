@@ -9,9 +9,5 @@
         <img src="{{ question.image.url}}" alt="{{question}}" style="max-height:300px">
     {% endif %}
 
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-    </form>
     <span> {{ question.author.username }}</span>
 {% endblock %}

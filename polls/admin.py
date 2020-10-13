@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Question, Choice
+from .models import Question, Choice, Comment
 
 
 # Register your models here.
@@ -13,6 +13,8 @@ class ChoiceInline(admin.TabularInline):
 
     votes_count.short_description = 'Votes count'
 
+class CommentInline(admin.StackedInline):
+    model = Comment
 
 class QuestionAdmin(admin.ModelAdmin):
     fieldsets = [

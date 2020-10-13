@@ -3,12 +3,22 @@
     <h1>{{ question.question_text }}</h1>
 
     <ul>
-        {% for choice in question.choice_set.all %}
+        {% for choice in question.choices.all %}
             <li>
-                {{ choice.choice_text }} --
-                voted {{ choice.votes.count }}</li>
-
+                {% if question.choice_type == 't' %}
+                    "{{ choice.choice_text }}" proposed by {{ choice.votes.username }}
+                {% else %}
+                    {{ choice.choice_text }} -> voted {{ choice.votes.count }}
+                {% endif %}
+            </li>
         {% endfor %}
     </ul>
 
+    <h3>Comments:</h3>
+    <ul>
+    {% for comment in question.comments.all %}
+        <li>{{ comment.text }} - {{ comment.author.username }}</li>
+    {% endfor %}
+    </ul>
+     <a href={% url 'polls:create_comment' question.id %}>Add comment</a>
 {% endblock content %}

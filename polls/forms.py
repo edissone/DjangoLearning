@@ -1,24 +1,32 @@
 from django import forms
 from extra_views import InlineFormSetFactory
 
-from polls.models import Question, Choice
+from polls.models import Question, Choice, Comment
 
 
 class VoteForm(forms.Form):
     def __init__(self, *args, **kwargs):
-        question = Question.objects.get(pk=kwargs.pop('question_id'))
+        self._question = Question.objects.get(pk=kwargs.pop('question_id'))
         super(VoteForm, self).__init__(*args, **kwargs)
-        if question.choice_type == 'c':
-            self.fields['choice'] = forms.ModelMultipleChoiceField(question.choice_set,
+        if self._question.choice_type == 'c':
+            self.fields['choice'] = forms.ModelMultipleChoiceField(self._question.choice_set,
                                                                    widget=forms.CheckboxSelectMultiple)
-        if question.choice_type == 'r':
-            self.fields['choice'] = forms.ModelChoiceField(question.choice_set,
+        if self._question.choice_type == 'r':
+            self.fields['choice'] = forms.ModelChoiceField(self._question.choice_set,
                                                            widget=forms.RadioSelect)
         else:
             self.fields['choice'] = forms.CharField(max_length=150, widget=forms.Textarea)
 
     class Meta:
         fields = ['choice', ]
+
+
+class CommentForm(forms.ModelForm):
+    text = forms.CharField(max_length=155, widget=forms.Textarea)
+
+    class Meta:
+        fields = ['text']
+        model = Comment
 
 
 class ChoiceInline(InlineFormSetFactory):

@@ -33,10 +33,15 @@ class Question(models.Model):
 
 
 class Choice(models.Model):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='choices')
     choice_text = models.CharField(max_length=50)
     votes = models.ManyToManyField(User, related_name="votes", default=None, blank=True)
 
     def __str__(self):
         return self.choice_text
 
+class Comment(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="comments")
+    text = models.CharField(max_length=155, blank=True)
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_comments')
+    publish_date = models.DateTimeField('date published')

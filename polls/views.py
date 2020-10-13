@@ -6,7 +6,7 @@ from django.views import generic
 from django_bulk_update.helper import bulk_update
 from extra_views import CreateWithInlinesView
 
-from polls.forms import ChoiceInline, VoteForm
+from polls.forms import ChoiceInline, VoteForm, CommentForm
 from polls.models import Question, Choice
 
 
@@ -32,6 +32,12 @@ class DetailView(generic.DetailView):
 class ResultsView(generic.DetailView):
     model = Question
     template_name = 'polls/results.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ResultsView, self).get_context_data(**kwargs)
+        context['question_queryset'] = Question.objects.prefetch_related('choices').prefetch_related('comments').get(
+            pk=self.kwargs['pk'])
+        return context
 
 
 class CreateQuestionFormView(CreateWithInlinesView):
@@ -78,3 +84,16 @@ class ChoiceVoteView(generic.FormView):
                 choices_list.append(choice)
         bulk_update(choices_list)
         return HttpResponseRedirect(reverse('polls:results', args=(self.get_form_kwargs()['question_id'],)))
+
+
+class CommentView(generic.FormView):
+    template_name = 'polls/comment.html'
+    form_class = CommentForm
+
+    def form_valid(self, form):
+        comment = form.instance
+        comment.question_id = self.kwargs['question_id']
+        comment.author = self.request.user
+        comment.publish_date = timezone.now()
+        comment.save()
+        return HttpResponseRedirect(reverse('polls:results', args=(self.kwargs['question_id'],)))
