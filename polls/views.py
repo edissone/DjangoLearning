@@ -33,11 +33,9 @@ class ResultsView(generic.DetailView):
     model = Question
     template_name = 'polls/results.html'
 
-    def get_context_data(self, **kwargs):
-        context = super(ResultsView, self).get_context_data(**kwargs)
-        context['question_queryset'] = Question.objects.prefetch_related('choices').prefetch_related('comments').get(
-            pk=self.kwargs['pk'])
-        return context
+    def get_object(self, **kwargs):
+        return Question.objects.prefetch_related('choices', 'comments', 'comments__author',
+                                                 'choices__votes').get(pk=self.kwargs['pk'])
 
 
 class CreateQuestionFormView(CreateWithInlinesView):
@@ -47,13 +45,14 @@ class CreateQuestionFormView(CreateWithInlinesView):
     fields = ['question_text', 'description', 'image', 'choice_type']
     widgets = {
         'description': forms.Textarea(attrs={'rows': 5, 'cols': 10}),
+        'image': forms.ImageField
     }
 
     def form_valid(self, form):
         form.instance.author = self.request.user
         form.instance.publish_date = timezone.now()
         form.instance.save()
-        return HttpResponseRedirect(reverse('polls:detail', args=(form.instance.id,)))
+        return HttpResponseRedirect(reverse('polls:vote', args=(form.instance.id,)))
 
     def get_success_url(self):
         return self.object.get_absolute_url()

@@ -6,13 +6,13 @@ from polls.models import Question, Choice, Comment
 
 class VoteForm(forms.Form):
     def __init__(self, *args, **kwargs):
-        self._question = Question.objects.get(pk=kwargs.pop('question_id'))
+        self._question = Question.objects.prefetch_related('choices', 'author').get(pk=kwargs.pop('question_id'))
         super(VoteForm, self).__init__(*args, **kwargs)
         if self._question.choice_type == 'c':
-            self.fields['choice'] = forms.ModelMultipleChoiceField(self._question.choice_set,
+            self.fields['choice'] = forms.ModelMultipleChoiceField(self._question.choices,
                                                                    widget=forms.CheckboxSelectMultiple)
         if self._question.choice_type == 'r':
-            self.fields['choice'] = forms.ModelChoiceField(self._question.choice_set,
+            self.fields['choice'] = forms.ModelChoiceField(self._question.choices,
                                                            widget=forms.RadioSelect)
         else:
             self.fields['choice'] = forms.CharField(max_length=150, widget=forms.Textarea)

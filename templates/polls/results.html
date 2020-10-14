@@ -1,7 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
     <h1>{{ question.question_text }}</h1>
-
+    {% if question.image %}
+        <img src="{{ question.image.url }}" alt="{{ question }}">
+    {% else %}
+        does not exist, fuck!
+    {% endif %}
     <ul>
         {% for choice in question.choices.all %}
             <li>
@@ -16,9 +20,9 @@
 
     <h3>Comments:</h3>
     <ul>
-    {% for comment in question.comments.all %}
-        <li>{{ comment.text }} - {{ comment.author.username }}</li>
-    {% endfor %}
+        {% for comment in question.comments.all %}
+            <li>{{ comment.text }} - {{ comment.author.username }}</li>
+        {% endfor %}
     </ul>
-     <a href={% url 'polls:create_comment' question.id %}>Add comment</a>
+    <a href={% url 'polls:create_comment' question.id %}>Add comment</a>
 {% endblock content %}

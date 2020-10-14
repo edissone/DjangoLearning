@@ -6,6 +6,8 @@ from django.utils import timezone
 
 
 # Create your models here.
+from config.settings import MEDIA_URL
+
 
 class Question(models.Model):
     CHOICES_TYPE = [
@@ -15,7 +17,7 @@ class Question(models.Model):
     ]
     question_text = models.CharField(max_length=30)
     description = models.CharField(max_length=150, blank=True)
-    image = models.ImageField(upload_to='polls/', blank=True, null=True)
+    image = models.ImageField(upload_to=MEDIA_URL.join('polls/'))
     choice_type = models.CharField(max_length=2, choices=CHOICES_TYPE, default='r')
     publish_date = models.DateTimeField('date published')
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='questions')
