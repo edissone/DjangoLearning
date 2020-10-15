@@ -18,3 +18,5 @@ self==0.0.0
 six==1.15.0
 sqlparse==0.3.1
 urllib3==1.25.10
+
+django-model-utils~=4.0.0

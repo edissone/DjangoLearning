@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils import timezone
@@ -29,16 +30,16 @@ class DetailView(generic.DetailView):
         return Question.objects.filter(publish_date__lte=timezone.now())
 
 
-class ResultsView(generic.DetailView):
+class ResultsView(LoginRequiredMixin, generic.DetailView):
     model = Question
     template_name = 'polls/results.html'
 
-    def get_object(self, **kwargs):
+    def get_queryset(self):
         return Question.objects.prefetch_related('choices', 'comments', 'comments__author',
-                                                 'choices__votes').get(pk=self.kwargs['pk'])
+                                                 'choices__votes').filter(pk=self.kwargs['pk'])
 
 
-class CreateQuestionFormView(CreateWithInlinesView):
+class CreateQuestionFormView(LoginRequiredMixin, CreateWithInlinesView):
     model = Question
     inlines = [ChoiceInline]
     template_name = 'polls/create_question.html'
@@ -50,7 +51,6 @@ class CreateQuestionFormView(CreateWithInlinesView):
 
     def form_valid(self, form):
         form.instance.author = self.request.user
-        form.instance.publish_date = timezone.now()
         form.instance.save()
         return HttpResponseRedirect(reverse('polls:vote', args=(form.instance.id,)))
 
@@ -58,7 +58,7 @@ class CreateQuestionFormView(CreateWithInlinesView):
         return self.object.get_absolute_url()
 
 
-class ChoiceVoteView(generic.FormView):
+class ChoiceVoteView(LoginRequiredMixin, generic.FormView):
     template_name = 'polls/vote.html'
     form_class = VoteForm
 
@@ -85,7 +85,7 @@ class ChoiceVoteView(generic.FormView):
         return HttpResponseRedirect(reverse('polls:results', args=(self.get_form_kwargs()['question_id'],)))
 
 
-class CommentView(generic.FormView):
+class CommentView(LoginRequiredMixin, generic.FormView):
     template_name = 'polls/comment.html'
     form_class = CommentForm
 
@@ -93,6 +93,5 @@ class CommentView(generic.FormView):
         comment = form.instance
         comment.question_id = self.kwargs['question_id']
         comment.author = self.request.user
-        comment.publish_date = timezone.now()
         comment.save()
         return HttpResponseRedirect(reverse('polls:results', args=(self.kwargs['question_id'],)))

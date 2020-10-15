@@ -8,10 +8,10 @@ class VoteForm(forms.Form):
     def __init__(self, *args, **kwargs):
         self._question = Question.objects.prefetch_related('choices', 'author').get(pk=kwargs.pop('question_id'))
         super(VoteForm, self).__init__(*args, **kwargs)
-        if self._question.choice_type == 'c':
+        if self._question.choice_type == Question.TYPE.multi:
             self.fields['choice'] = forms.ModelMultipleChoiceField(self._question.choices,
                                                                    widget=forms.CheckboxSelectMultiple)
-        if self._question.choice_type == 'r':
+        if self._question.choice_type == Question.TYPE.single:
             self.fields['choice'] = forms.ModelChoiceField(self._question.choices,
                                                            widget=forms.RadioSelect)
         else:
