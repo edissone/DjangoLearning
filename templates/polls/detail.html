@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>{{ question.question_text }}</h1>
+
+    {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+    {% if question.image %}
+        <img src="{{ question.image.url }}" alt="{{ question }}" style="max-height:300px">
+    {% endif %}
+
+    <a href="{% url 'polls:vote' question_id=question.id %}">Vote</a>
+
+    <span> {{ question.author.username }}</span>
+{% endblock %}

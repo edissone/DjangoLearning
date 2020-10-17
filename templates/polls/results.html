@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>{{ question.question_text }}</h1>
+    {% if question.image %}
+        <img src="{{ question.image.url }}" alt="{{ question }}">
+    {% else %}
+        does not exist, fuck!
+    {% endif %}
+    <ul>
+        {% for choice in question.choices.all %}
+            <li>
+                {% if question.choice_type == 't' %}
+                    "{{ choice.choice_text }}" proposed by {{ choice.votes.username }}
+                {% else %}
+                    {{ choice.choice_text }} -> voted {{ choice.votes.count }}
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+
+    <h3>Comments:</h3>
+    <ul>
+        {% for comment in question.comments.all %}
+            <li>{{ comment.text }} - {{ comment.author.username }}</li>
+        {% endfor %}
+    </ul>
+    <a href={% url 'polls:create_comment' question.id %}>Add comment</a>
+{% endblock content %}

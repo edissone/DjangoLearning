@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block content %}
+    {{ user.username }}
+        {% for question in questions %}
+            <li class="mt-2"><a href="{% url 'polls:detail' question.id %}">{{ question.question_text }}</a></li>
+        {% endfor %}
+{% endblock content %}

@@ -1,0 +1,14 @@
+{% if is_paginated %}
+    <div class="pagination">
+            <span class="page-links">
+            {% for page in page_obj.paginator.page_range %}
+                {% if page_obj.paginator.number == page %}
+                    <span class="mt-10"><a class="col-lg-4 text-dark font-italic">{{ page }}</a></span>
+                {% else %}
+                    <span class="mt-10"><a class="col-lg-4 text-primary font-weight-bold"
+                                           href="/?page={{ page }}">{{ page }}</a></span>
+                {% endif %}
+            {% endfor %}
+            </span>
+    </div>
+{% endif %}

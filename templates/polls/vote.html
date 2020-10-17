@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>{{ question.question_text }}</h1>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="submit_vote">Submit</button>
+    </form>
+    <span> {{ question.author.username }}</span>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+    {% if latest_question_list %}
+
+        {% for question in latest_question_list %}
+            <li class="mt-2"><a href="{% url 'polls:detail' question.id %}">{{ question.question_text }}</a></li>
+        {% endfor %}
+    {% else %}
+        <p>No polls are available.</p>
+    {% endif %}
+    {% include "include/pagination.html" %}
+{% endblock %}
